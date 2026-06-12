@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- xunit v3 ships its own in-process test host and runs as a real
+         executable, so the test project must produce an exe. -->
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The plugin under test. -->
+    <ProjectReference Include="..\src\AacWindowsCodecPlugin.csproj" />
+
+    <!-- The plugin references both SoundBoard.PluginApi and NAudio.Core
+         with ExcludeAssets="runtime" (the host owns the live copies), so
+         neither runtime assembly flows here transitively. The test host
+         is the "host" in this context and needs the real DLLs — add
+         direct references. Match the plugin's pinned versions. -->
+    <PackageReference Include="SoundBoard.PluginApi" Version="1.0.0-beta.1" />
+    <PackageReference Include="NAudio.Core" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <!-- Pinned to 7.2.2 — FluentAssertions 8.x switched to a paid license. -->
+    <PackageReference Include="FluentAssertions" Version="7.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Decode fixtures need to sit next to the test assembly at runtime. -->
+    <None Include="fixtures\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="fixtures" />
+  </ItemGroup>
+
+</Project>

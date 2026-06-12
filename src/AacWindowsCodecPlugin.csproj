@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>AacWindowsCodecPlugin</AssemblyName>
+    <RootNamespace>AacWindowsCodecPlugin</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <!-- Default for local dev builds. CI release.yml overrides via
+         `-p:Version=<tag-derived>`; PluginVersion.OfAssembly reads it
+         at runtime. Keep in sync with plugin.json for local builds. -->
+    <Version>1.0.0</Version>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- Media Foundation is Windows-only. This plugin will throw on
+         load on non-Windows hosts. Document via the manifest's
+         description and refuse to register the .aac extension when
+         the runtime OS isn't Windows. -->
+  </PropertyGroup>
+
+  <!-- WINDOWS_BUILD gates the source paths that reference
+       NAudio.MediaFoundation (only restored on Windows, see below).
+       Off-Windows the plugin still compiles; it just throws at
+       runtime — which is what we want anyway, since the platform
+       gate in SupportedPatterns / CreateStream already enforces it. -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <DefineConstants>$(DefineConstants);WINDOWS_BUILD</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The host ships SoundBoard.PluginApi.dll and its PluginLoadContext
+         defers to it, so ExcludeAssets="runtime" keeps the compile-time
+         reference but strips the assembly from this plugin's output. -->
+    <PackageReference Include="SoundBoard.PluginApi" Version="1.0.0-beta.1" ExcludeAssets="runtime" />
+
+    <!-- NAudio.Core flows in transitively through SoundBoard.PluginApi. The
+         host owns the live NAudio instance; if we shipped our own copy here
+         the WaveStream the host expects from CreateStream would be a
+         different CLR type than ours and casts would fail.
+         ExcludeAssets="runtime" keeps the compile-time reference but strips
+         NAudio.Core.dll from the publish output. NAudio.Wasapi (which
+         provides MediaFoundationReader) below is NOT excluded — it's the
+         decoder this plugin actually uses, and the host only loads it
+         dynamically on Windows for its own use, so it has to ship. -->
+    <PackageReference Include="NAudio.Core" Version="2.3.0" ExcludeAssets="runtime" />
+
+    <!-- NAudio.Wasapi wraps Windows Media Foundation (despite the
+         name — MediaFoundationReader / MediaFoundationApi live here
+         in modern NAudio 2.x) which provides hardware-accelerated
+         AAC decoding on Windows. Restored only on Windows (the
+         runtime is OS-locked anyway). -->
+    <!-- Match the host's NAudio.Wasapi version (2.3.0). NuGet shows an
+         apparent "22.0.0" later release but it's an outlier — every other
+         NAudio family package is on 2.3.0 and the host pins 2.3.0; pulling
+         22.0.0 here would put us on a different binary than the host's
+         already-loaded NAudio.Core and break type identity for any types
+         that flow between the two assemblies. -->
+    <PackageReference Include="NAudio.Wasapi" Version="2.3.0" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="plugin.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

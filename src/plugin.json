@@ -1,0 +1,10 @@
+{
+  "publisher": "github.DevinSanders",
+  "id": "codec.aac.windows",
+  "name": "AAC Codec (Windows)",
+  "version": "1.0.0",
+  "author": "Devin Sanders",
+  "description": "Adds .aac / .m4a playback on Windows via Media Foundation. Windows only — use codec.aac.ffmpeg on macOS / Linux.",
+  "entryDll": "AacWindowsCodecPlugin.dll",
+  "isTheme": false
+}

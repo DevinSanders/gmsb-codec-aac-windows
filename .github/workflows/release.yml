@@ -77,7 +77,11 @@ jobs:
           echo "Version: $VERSION"
 
       - name: Restore
-        run: dotnet restore src/*.csproj
+        # NOTE: Use the explicit path, not a glob. The default shell on
+        # windows-latest is pwsh, which does NOT expand wildcards for
+        # native commands — `dotnet restore src/*.csproj` would pass the
+        # literal string `src/*.csproj` to dotnet and fail with MSB1009.
+        run: dotnet restore src/AacWindowsCodecPlugin.csproj
 
       - name: Test
         # Same Windows-only invariant as build.yml: the MF decode tests

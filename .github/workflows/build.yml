@@ -32,7 +32,11 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore
-        run: dotnet restore src/*.csproj
+        # NOTE: Use the explicit path, not a glob. The default shell on
+        # windows-latest is pwsh, which does NOT expand wildcards for
+        # native commands — `dotnet restore src/*.csproj` would pass the
+        # literal string `src/*.csproj` to dotnet and fail with MSB1009.
+        run: dotnet restore src/AacWindowsCodecPlugin.csproj
 
       - name: Test
         # Runs on the Windows runner so the Media Foundation decode tests

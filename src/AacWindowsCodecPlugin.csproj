@@ -42,7 +42,7 @@
          provides MediaFoundationReader) below is NOT excluded — it's the
          decoder this plugin actually uses, and the host only loads it
          dynamically on Windows for its own use, so it has to ship. -->
-    <PackageReference Include="NAudio.Core" Version="2.3.0" ExcludeAssets="runtime" />
+    <PackageReference Include="NAudio.Core" Version="3.0.0" ExcludeAssets="runtime" />
 
     <!-- NAudio.Wasapi wraps Windows Media Foundation (despite the
          name — MediaFoundationReader / MediaFoundationApi live here

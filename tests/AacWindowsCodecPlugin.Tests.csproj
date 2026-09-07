@@ -20,7 +20,7 @@
          is the "host" in this context and needs the real DLLs — add
          direct references. Match the plugin's pinned versions. -->
     <PackageReference Include="SoundBoard.PluginApi" Version="1.0.0-beta.1" />
-    <PackageReference Include="NAudio.Core" Version="2.3.0" />
+    <PackageReference Include="NAudio.Core" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
